@@ -54,18 +54,38 @@ func TotalInCategories(payments [] types.Payment) map [types.Category]types.Mone
 
 // CategoriesAvg считает среднюю сумму платежа по кажой категории
 func CategoriesAvg(payments []types.Payment) map[types.Category]types.Money {
-    sumByCategory := make(map[types.Category]types.Money)
-    countByCategory := make(map[types.Category]int)
+    sumByCategory := map[types.Category]types.Money{}
+    countByCategory := map[types.Category]int{}
 
     for _, payment := range payments {
         sumByCategory[payment.Category] += payment.Amount
         countByCategory[payment.Category]++
     }
 
-    avgByCategory := make(map[types.Category]types.Money)
+    avgByCategory := map[types.Category]types.Money{}
     for category, sum := range sumByCategory {
         avgByCategory[category] = sum / types.Money(countByCategory[category])
     }
 
     return avgByCategory
+}
+
+// PeriodsDynamic сравнивает расходы по категориям за два периода
+func PeriodsDynamic (first map[types.Category]types.Money, second map[types.Category]types.Money) map[types.Category]types.Money {
+	
+	third := map[types.Category]types.Money{}
+
+	for category, amountFirst := range first {
+        amountSecond := second[category]
+        third[category] = amountSecond - amountFirst
+    }
+
+    for category, amountSecond := range second {
+        if _, exists := first[category]; !exists {
+            third[category] = amountSecond
+        }
+    }
+
+    return third
+	
 }
